@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; padding: 0; background: #07040f; }
+    body { font-family: 'Rajdhani', sans-serif; }
+    a { color: #22d3ee; }
+    a:hover { color: #ff4fd8; }
+    *::selection { background: rgba(34,211,238,.35); color: #ffffff; }
+    @keyframes cvGrid { from { background-position: 0 0; } to { background-position: 0 56px; } }
+    @keyframes cvFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+    @keyframes cvBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+    @keyframes cvPop { 0% { transform: scale(.85); opacity: 0; } 60% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes cvShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+    @keyframes cvRise { 0% { transform: translateY(10px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-26px); opacity: 0; } }
+    @keyframes cvPulse { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
+    @keyframes cvSheen { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+  </style>
+</helmet>
+
+<div style="min-height: 100vh; position: relative; overflow-x: hidden; color: #dfe6ff; font-family: 'Rajdhani', sans-serif; --neon: {{ corNeon }}; background: radial-gradient(900px 500px at 12% -8%, rgba(34,211,238,.13), transparent 60%), radial-gradient(1000px 600px at 95% 8%, rgba(255,79,216,.11), transparent 55%), radial-gradient(800px 700px at 50% 115%, rgba(124,58,237,.18), transparent 60%), linear-gradient(180deg, #0b0722 0%, #07040f 55%, #0a0618 100%);">
+
+  <!-- Piso de grade em perspectiva (chão 3D) -->
+  <div style="position: fixed; left: -20%; right: -20%; bottom: -8%; height: 46vh; pointer-events: none; z-index: 0; transform: perspective(520px) rotateX(62deg); transform-origin: bottom center; opacity: .5; background-image: linear-gradient(rgba(34,211,238,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,79,216,.10) 1px, transparent 1px); background-size: 56px 56px; animation: cvGrid 2.6s linear infinite; -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.9), transparent 85%); mask-image: linear-gradient(to top, rgba(0,0,0,.9), transparent 85%);"></div>
+
+  <!-- Vinheta -->
+  <div style="position: fixed; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(1200px 800px at 50% 40%, transparent 55%, rgba(3,2,10,.55) 100%);"></div>
+
+  <!-- Scanlines (tweak) -->
+  <sc-if value="{{ scanlinesOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: .5; background: repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,.16) 2px, rgba(0,0,0,.16) 4px);"></div>
+  </sc-if>
+
+  <!-- ▓▓ HUD superior ▓▓ -->
+  <header style="position: sticky; top: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 26px; background: rgba(10,7,26,.62); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid rgba(139,148,255,.14);">
+    <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onClick="{{ voltarHub }}">
+      <div style="width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: linear-gradient(135deg, rgba(34,211,238,.18), rgba(255,79,216,.18)); border: 1px solid var(--neon, #22d3ee); box-shadow: 0 0 14px rgba(34,211,238,.35); color: var(--neon, #22d3ee); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px;">&lt;/&gt;</div>
+      <div style="display: flex; flex-direction: column; line-height: 1;">
+        <span style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: .14em; color: #ffffff;">CODEVIBE<span style="color: #ff4fd8; text-shadow: 0 0 10px rgba(255,79,216,.8);">_3D</span></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .3em; color: #8b93c8; margin-top: 3px;">SIMULADOR DE CÓDIGO</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 999px; background: rgba(13,10,34,.7); border: 1px solid rgba(139,148,255,.18);" title="Jogador">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px #4ade80;"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #b9c1ee; letter-spacing: .06em;">{{ codinome }}</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 999px; background: rgba(13,10,34,.7); border: 1px solid rgba(34,211,238,.35); box-shadow: 0 0 12px rgba(34,211,238,.15);" title="Experiência">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--neon, #22d3ee)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        <span style="font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; color: #ffffff; letter-spacing: .05em;">{{ xpFmt }} XP</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; padding: 7px 13px; border-radius: 999px; background: rgba(13,10,34,.7); border: 1px solid rgba(139,148,255,.18);" title="Nível">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9c1ee;">LVL <b style="color: #ffffff;">{{ nivel }}</b></span>
+        <span style="width: 58px; height: 5px; border-radius: 3px; background: rgba(139,148,255,.16); overflow: hidden; display: inline-block;"><span style="display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--neon, #22d3ee), #ff4fd8); width: {{ nivelPctCss }};"></span></span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 999px; background: rgba(13,10,34,.7); border: 1px solid {{ streakBorda }};" title="Sequência de acertos">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="{{ streakCor }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+        <span style="font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; color: {{ streakCor }};">x{{ streak }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════════ TELA 1 · HERO ════════════ -->
+  <sc-if value="{{ telaHero }}" hint-placeholder-val="{{ true }}">
+    <main data-screen-label="Hero — escolha da trilha" style="position: relative; z-index: 10; max-width: 1240px; margin: 0 auto; padding: 58px 28px 110px; text-align: center;">
+      <div style="display: inline-flex; align-items: center; gap: 9px; padding: 8px 18px; border-radius: 999px; border: 1px solid rgba(34,211,238,.45); background: rgba(34,211,238,.07); box-shadow: 0 0 22px rgba(34,211,238,.18), inset 0 0 12px rgba(34,211,238,.06); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .32em; color: var(--neon, #22d3ee);">
+        <span style="animation: cvPulse 1.6s ease-in-out infinite;">●</span> SIMULADOR_DE_CÓDIGO v3.0 — ONLINE
+      </div>
+
+      <div style="animation: cvFloat 6s ease-in-out infinite; margin-top: 30px;">
+        <h1 style="margin: 0; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(52px, 8.4vw, 108px); line-height: .98; letter-spacing: .04em; color: #ffffff; text-shadow: 0 2px 0 #1a1440, 0 4px 0 #171138, 0 7px 0 #120d2c, 0 16px 34px rgba(0,0,0,.6);">CODE<span style="color: var(--neon, #22d3ee); text-shadow: 0 0 14px rgba(34,211,238,.9), 0 0 46px rgba(34,211,238,.55), 0 7px 0 #0a2a33, 0 16px 34px rgba(0,0,0,.6);">VIBE</span></h1>
+        <h1 style="margin: 4px 0 0; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(40px, 6vw, 76px); line-height: 1; letter-spacing: .34em; padding-left: .34em; color: #ff4fd8; text-shadow: 0 0 16px rgba(255,79,216,.9), 0 0 60px rgba(255,79,216,.5), 0 6px 0 #33082a, 0 14px 30px rgba(0,0,0,.6); animation: cvPulse 3.2s ease-in-out infinite;">3D</h1>
+      </div>
+
+      <p style="margin: 34px auto 0; max-width: 640px; font-size: 23px; font-weight: 500; line-height: 1.45; color: #b9c1ee;">Esqueça a teoria chata. <strong style="color: var(--neon, #22d3ee); text-shadow: 0 0 12px rgba(34,211,238,.5);">O código é o seu novo superpoder.</strong></p>
+      <p style="margin: 10px auto 0; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: .12em; color: #8b93c8;">&gt; 50 missões práticas · 4 trilhas · zero enrolação<span style="display: inline-block; width: 9px; height: 16px; margin-left: 6px; background: var(--neon, #22d3ee); vertical-align: -2px; animation: cvBlink 1s step-end infinite;"></span></p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr)); gap: 20px; margin-top: 54px; text-align: left; perspective: 1400px;">
+        <sc-for list="{{ trilhas }}" as="t" hint-placeholder-count="4">
+          <div onClick="{{ t.abrir }}" onMouseMove="{{ tiltMove }}" onMouseLeave="{{ tiltLeave }}" style="position: relative; cursor: pointer; border-radius: 16px; padding: 22px 20px 20px; background: linear-gradient(160deg, rgba(23,18,52,.78), rgba(12,9,30,.82)); border: 1px solid rgba(139,148,255,.16); border-top: 2px solid {{ t.cor }}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); transition: transform .14s ease, box-shadow .2s ease; transform-style: preserve-3d;" style-hover="box-shadow: 0 26px 60px rgba(0,0,0,.55), 0 0 30px {{ t.corGlow }}, inset 0 1px 0 rgba(255,255,255,.08);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="width: 46px; height: 46px; display: grid; place-items: center; border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 17px; color: {{ t.cor }}; background: {{ t.corFundo }}; border: 1px solid {{ t.cor }}; box-shadow: 0 0 16px {{ t.corGlow }}; transform: translateZ(30px);">{{ t.glifo }}</div>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; color: #8b93c8; border: 1px solid rgba(139,148,255,.2); padding: 4px 9px; border-radius: 999px;">{{ t.tag }}</span>
+            </div>
+            <h3 style="margin: 16px 0 3px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: .06em; color: #ffffff; transform: translateZ(22px);">{{ t.nome }}</h3>
+            <p style="margin: 0 0 16px; font-size: 15px; font-weight: 500; color: #8b93c8;">{{ t.sub }}</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .14em; color: #b9c1ee;">{{ t.feitas }}/{{ t.total }} MISSÕES</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: {{ t.cor }};">{{ t.pct }}%</span>
+            </div>
+            <div style="height: 6px; border-radius: 3px; background: rgba(139,148,255,.14); overflow: hidden;">
+              <div style="height: 100%; border-radius: 3px; width: {{ t.pctCss }}; background: linear-gradient(90deg, {{ t.cor }}, {{ t.cor }}); box-shadow: 0 0 10px {{ t.corGlow }}; transition: width .5s ease;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px; margin-top: 17px; font-family: 'Orbitron', sans-serif; font-size: 11.5px; font-weight: 700; letter-spacing: .18em; color: {{ t.cor }};">
+              INICIAR
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </main>
+  </sc-if>
+
+  <!-- ════════════ TELA 2 · DESAFIO ════════════ -->
+  <sc-if value="{{ telaJogo }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Desafio — terminal + editor" style="position: relative; z-index: 10; max-width: 1280px; margin: 0 auto; padding: 22px 26px 80px;">
+
+      <!-- Barra da missão -->
+      <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 14px;">
+        <button onClick="{{ voltarHub }}" style="display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; border-radius: 9px; cursor: pointer; background: rgba(13,10,34,.7); border: 1px solid rgba(139,148,255,.22); color: #b9c1ee; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: .1em; transition: all .15s ease;" style-hover="border-color: var(--neon, #22d3ee); color: #ffffff;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
+          HUB
+        </button>
+        <div style="display: inline-flex; align-items: center; gap: 9px;">
+          <span style="width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; color: {{ trilhaCor }}; background: {{ trilhaCorFundo }}; border: 1px solid {{ trilhaCor }};">{{ trilhaGlifo }}</span>
+          <span style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .12em; color: #ffffff;">TRILHA {{ trilhaNome }}</span>
+        </div>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .14em; color: #8b93c8;">MISSÃO <b style="color: {{ trilhaCor }};">{{ numAtual }}</b>/{{ numTotal }}</span>
+        <div style="flex: 1; min-width: 160px; display: flex; gap: 4px;">
+          <sc-for list="{{ segmentos }}" as="s" hint-placeholder-count="10">
+            <span style="flex: 1; height: 6px; border-radius: 3px; background: {{ s.bg }}; box-shadow: {{ s.glow }};"></span>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); gap: 20px; align-items: start;">
+
+        <!-- ◀ Terminal do Desafio -->
+        <section style="border-radius: 14px; overflow: hidden; background: rgba(15,12,38,.72); border: 1px solid rgba(139,148,255,.16); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 22px 50px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);">
+          <div style="display: flex; align-items: center; gap: 8px; padding: 11px 15px; background: rgba(8,6,20,.85); border-bottom: 1px solid rgba(139,148,255,.14);">
+            <span style="width: 11px; height: 11px; border-radius: 50%; background: #ff5f57;"></span>
+            <span style="width: 11px; height: 11px; border-radius: 50%; background: #febc2e;"></span>
+            <span style="width: 11px; height: 11px; border-radius: 50%; background: #28c840;"></span>
+            <span style="margin-left: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #8b93c8;">terminal — missao_{{ numPad }}.log</span>
+          </div>
+          <div style="padding: 20px 22px 24px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+              <span style="padding: 4px 11px; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; color: {{ trilhaCor }}; background: {{ trilhaCorFundo }}; border: 1px solid {{ trilhaCor }};">{{ trilhaTag }}</span>
+              <span style="padding: 4px 11px; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; color: {{ difCor }}; background: {{ difFundo }}; border: 1px solid {{ difCor }};">{{ dif }}</span>
+              <span style="padding: 4px 11px; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; color: #facc15; background: rgba(250,204,21,.08); border: 1px solid rgba(250,204,21,.5);">+{{ xpDesafio }} XP</span>
+            </div>
+            <p style="margin: 0; font-size: 18.5px; font-weight: 500; line-height: 1.55; color: #dfe6ff;"><span style="font-family: 'JetBrains Mono', monospace; color: var(--neon, #22d3ee);">&gt;_ </span>{{ missao }}<span style="display: inline-block; width: 8px; height: 17px; margin-left: 5px; background: var(--neon, #22d3ee); vertical-align: -2px; animation: cvBlink 1.1s step-end infinite;"></span></p>
+            <div style="margin-top: 20px;">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .22em; color: #8b93c8; margin-bottom: 8px;">// CÓDIGO_BASE</div>
+              <div style="border-radius: 10px; background: #0a081e; border: 1px solid rgba(139,148,255,.14); padding: 14px 14px 14px 6px; overflow-x: auto;">
+                <sc-for list="{{ codigoLinhas }}" as="l" hint-placeholder-count="4">
+                  <div style="display: flex; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75;">
+                    <span style="width: 26px; flex: none; text-align: right; color: #4a5080; user-select: none;">{{ l.n }}</span>
+                    <span style="white-space: pre-wrap; color: #c4ceff;">{{ l.t }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #8b93c8;">&gt; complete o trecho <span style="color: #ff4fd8; font-weight: 700;">____</span> escolhendo a linha certa no editor →</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ▶ Editor de Código Simulado -->
+        <section style="border-radius: 14px; overflow: hidden; background: rgba(15,12,38,.72); border: 1px solid rgba(139,148,255,.16); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 22px 50px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);">
+          <div style="display: flex; align-items: stretch; background: rgba(8,6,20,.85); border-bottom: 1px solid rgba(139,148,255,.14);">
+            <div style="display: flex; align-items: center; gap: 8px; padding: 10px 18px; background: rgba(15,12,38,.9); border-right: 1px solid rgba(139,148,255,.14); border-top: 2px solid var(--neon, #22d3ee);">
+              <span style="width: 8px; height: 8px; border-radius: 2px; background: {{ trilhaCor }};"></span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #dfe6ff;">resposta.{{ ext }}</span>
+            </div>
+            <div style="display: flex; align-items: center; padding: 10px 18px; color: #4a5080; font-family: 'JetBrains Mono', monospace; font-size: 11.5px;">config.json</div>
+            <div style="flex: 1;"></div>
+            <div style="display: flex; align-items: center; padding: 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; color: #8b93c8;">EDITOR_SIMULADO</div>
+          </div>
+          <div style="padding: 18px 20px 20px;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #4ade80; margin-bottom: 13px;">// selecione a linha correta e pressione EXECUTAR:</div>
+            <div style="display: flex; flex-direction: column; gap: 9px;">
+              <sc-for list="{{ opcoes }}" as="o" hint-placeholder-count="4">
+                <div onClick="{{ o.escolher }}" style="display: flex; align-items: center; gap: 13px; padding: 12px 15px; border-radius: 10px; cursor: pointer; border: {{ o.borda }}; background: {{ o.fundo }}; box-shadow: {{ o.sombra }}; transition: all .15s ease;" style-hover="transform: translateX(5px);">
+                  <span style="width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 7px; font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; color: {{ o.corLetra }}; border: 1px solid {{ o.corLetra }}; background: rgba(8,6,20,.6);">{{ o.letra }}</span>
+                  <code style="font-family: 'JetBrains Mono', monospace; font-size: 14.5px; font-weight: 500; color: {{ o.corTexto }}; white-space: pre-wrap;">{{ o.texto }}</code>
+                  <span style="margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: {{ o.corIcone }};">{{ o.icone }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 18px;">
+              <button onClick="{{ abrirDica }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 10px; cursor: pointer; background: transparent; border: 1px solid rgba(250,204,21,.45); color: #facc15; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .08em; transition: all .15s ease;" style-hover="background: rgba(250,204,21,.08);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>
+                DICA
+              </button>
+              <div style="flex: 1;"></div>
+              <button onClick="{{ executar }}" style="display: inline-flex; align-items: center; gap: 10px; padding: 12px 26px; border-radius: 10px; cursor: pointer; border: none; background: linear-gradient(135deg, var(--neon, #22d3ee), #ff4fd8); color: #07040f; font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .14em; box-shadow: 0 0 24px rgba(34,211,238,.35), 0 10px 24px rgba(0,0,0,.4); opacity: {{ execOpacidade }}; transition: all .15s ease;" style-hover="transform: translateY(-2px); box-shadow: 0 0 34px rgba(34,211,238,.5), 0 14px 28px rgba(0,0,0,.5);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                EXECUTAR
+              </button>
+            </div>
+
+            <!-- Dica -->
+            <sc-if value="{{ dicaAberta }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top: 16px; padding: 14px 16px; border-radius: 10px; background: rgba(250,204,21,.06); border: 1px dashed rgba(250,204,21,.5); animation: cvPop .3s ease;">
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <svg style="flex: none; margin-top: 2px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>
+                  <div>
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .2em; color: #facc15; margin-bottom: 4px;">DICA_DO_MENTOR</div>
+                    <p style="margin: 0; font-size: 15.5px; font-weight: 500; line-height: 1.5; color: #dfe6ff;">{{ dica }}</p>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- Feedback: ERRO -->
+            <sc-if value="{{ mostrarErro }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top: 16px; padding: 15px 17px; border-radius: 10px; background: rgba(255,84,112,.08); border: 1px solid rgba(255,84,112,.55); box-shadow: 0 0 22px rgba(255,84,112,.18); animation: cvShake .4s ease;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="width: 24px; height: 24px; flex: none; display: grid; place-items: center; border-radius: 50%; background: rgba(255,84,112,.18); border: 1px solid #ff5470; color: #ff5470; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;">✕</span>
+                  <div>
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .16em; color: #ff5470;">{{ msgErro }}</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #b9c1ee; margin-top: 3px;">streak zerada — leia a dica acima e execute de novo. Errar faz parte do jogo.</div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- Feedback: SUCESSO -->
+            <sc-if value="{{ mostrarCerto }}" hint-placeholder-val="{{ false }}">
+              <div style="position: relative; margin-top: 16px; padding: 17px 18px; border-radius: 10px; background: rgba(74,222,128,.08); border: 1px solid rgba(74,222,128,.6); box-shadow: 0 0 28px rgba(74,222,128,.22); animation: cvPop .35s ease;">
+                <div style="position: absolute; top: -14px; right: 16px; font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 900; color: #facc15; text-shadow: 0 0 14px rgba(250,204,21,.8); animation: cvRise 1.6s ease forwards;">+{{ ultimoGanho }} XP</div>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                  <span style="width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 50%; background: rgba(74,222,128,.16); border: 1px solid #4ade80; color: #4ade80; box-shadow: 0 0 14px rgba(74,222,128,.5);">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                  </span>
+                  <div style="min-width: 200px;">
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 12.5px; font-weight: 700; letter-spacing: .16em; color: #4ade80;">{{ msgCerto }}</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #b9c1ee; margin-top: 3px;">resposta correta: <b style="color: #4ade80;">{{ respostaCerta }}</b></div>
+                  </div>
+                  <button onClick="{{ proxima }}" style="margin-left: auto; display: inline-flex; align-items: center; gap: 9px; padding: 11px 20px; border-radius: 10px; cursor: pointer; border: 1px solid #4ade80; background: rgba(74,222,128,.14); color: #4ade80; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .14em; transition: all .15s ease;" style-hover="background: rgba(74,222,128,.26); transform: translateX(3px);">
+                    {{ btnProximaTexto }}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                  </button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </section>
+      </div>
+    </main>
+  </sc-if>
+
+  <!-- ════════════ TELA 3 · TRILHA CONCLUÍDA ════════════ -->
+  <sc-if value="{{ telaFim }}" hint-placeholder-val="{{ false }}">
+    <main data-screen-label="Conclusão da trilha" style="position: relative; z-index: 10; max-width: 760px; margin: 0 auto; padding: 70px 28px 120px; text-align: center;">
+      <div style="animation: cvPop .5s ease;">
+        <div style="width: 92px; height: 92px; margin: 0 auto; display: grid; place-items: center; border-radius: 24px; background: linear-gradient(150deg, rgba(250,204,21,.16), rgba(255,79,216,.12)); border: 1px solid #facc15; box-shadow: 0 0 46px rgba(250,204,21,.4), 0 24px 50px rgba(0,0,0,.5); animation: cvFloat 4s ease-in-out infinite;">
+          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+        </div>
+        <h2 style="margin: 30px 0 0; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(30px, 5vw, 46px); letter-spacing: .06em; color: #ffffff; text-shadow: 0 0 24px rgba(34,211,238,.4), 0 6px 0 #171138;">TRILHA <span style="color: {{ trilhaCor }}; text-shadow: 0 0 18px {{ trilhaCorGlow }};">{{ trilhaNome }}</span> DOMINADA</h2>
+        <p style="margin: 14px 0 0; font-size: 20px; font-weight: 500; color: #b9c1ee;">É isso, <b style="color: var(--neon, #22d3ee);">{{ codinome }}</b>. Você não decorou — você <b style="color: #ffffff;">fez</b>. E é assim que se aprende.</p>
+        <div style="display: flex; gap: 14px; justify-content: center; margin-top: 36px; flex-wrap: wrap;">
+          <div style="min-width: 150px; padding: 18px 22px; border-radius: 14px; background: rgba(15,12,38,.72); border: 1px solid rgba(139,148,255,.18); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 27px; font-weight: 900; color: var(--neon, #22d3ee); text-shadow: 0 0 14px rgba(34,211,238,.5);">{{ numTotal }}/{{ numTotal }}</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; color: #8b93c8; margin-top: 5px;">MISSÕES</div>
+          </div>
+          <div style="min-width: 150px; padding: 18px 22px; border-radius: 14px; background: rgba(15,12,38,.72); border: 1px solid rgba(139,148,255,.18); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 27px; font-weight: 900; color: #facc15; text-shadow: 0 0 14px rgba(250,204,21,.5);">+{{ xpSessao }}</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; color: #8b93c8; margin-top: 5px;">XP NA TRILHA</div>
+          </div>
+          <div style="min-width: 150px; padding: 18px 22px; border-radius: 14px; background: rgba(15,12,38,.72); border: 1px solid rgba(139,148,255,.18); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 27px; font-weight: 900; color: #4ade80; text-shadow: 0 0 14px rgba(74,222,128,.5);">{{ primeiras }}</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; color: #8b93c8; margin-top: 5px;">DE PRIMEIRA</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 14px; justify-content: center; margin-top: 38px; flex-wrap: wrap;">
+          <button onClick="{{ voltarHub }}" style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 11px; cursor: pointer; border: none; background: linear-gradient(135deg, var(--neon, #22d3ee), #ff4fd8); color: #07040f; font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .14em; box-shadow: 0 0 26px rgba(34,211,238,.4), 0 12px 26px rgba(0,0,0,.45); transition: all .15s ease;" style-hover="transform: translateY(-2px);">ESCOLHER NOVA TRILHA</button>
+          <button onClick="{{ refazerTrilha }}" style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 11px; cursor: pointer; background: transparent; border: 1px solid rgba(139,148,255,.35); color: #dfe6ff; font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .14em; transition: all .15s ease;" style-hover="border-color: var(--neon, #22d3ee); color: var(--neon, #22d3ee);">REFAZER TRILHA</button>
+        </div>
+      </div>
+    </main>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;corNeon&quot;: { &quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#22d3ee&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;#22d3ee&quot;, &quot;#ff4fd8&quot;, &quot;#a78bfa&quot;, &quot;#4ade80&quot;], &quot;section&quot;: &quot;Estilo&quot; },
+  &quot;scanlines&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Estilo&quot; },
+  &quot;codinome&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Recruta&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Jogo&quot; }
+}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.tracks = [
+      { id: "html", nome: "HTML", sub: "A estrutura de tudo", cor: "#ff6a3d", glifo: "</>", tag: "ESTRUTURA", ext: "html", total: 10 },
+      { id: "css", nome: "CSS", sub: "Estilo, layout e vibe", cor: "#22d3ee", glifo: "{;}", tag: "ESTILO", ext: "css", total: 10 },
+      { id: "js", nome: "JAVASCRIPT", sub: "Lógica que dá vida", cor: "#facc15", glifo: "=>", tag: "LÓGICA", ext: "js", total: 10 },
+      { id: "vscode", nome: "VS CODE", sub: "Produtividade ninja", cor: "#c084fc", glifo: ">_", tag: "ATALHOS", ext: "keys", total: 20 },
+    ];
+    this.msgsCerto = ["CÓDIGO COMPILADO COM SUCESSO", "EXECUTADO EM 0.003s — LIMPO", "ZERO BUGS DETECTADOS", "HACK APROVADO PELO SISTEMA"];
+    this.msgsErro = ["ERRO DE COMPILAÇÃO", "EXCEPTION LANÇADA NA LINHA 1", "BUG DETECTADO NO CÓDIGO"];
+    this.state = {
+      tela: "hero", trilha: null, idx: 0, sel: null, status: "idle",
+      dicaAberta: false, errouAqui: false,
+      xp: 0, streak: 0, concluidos: {}, primeiras: 0, xpSessao: 0, ultimoGanho: 0,
+      carregado: false,
+    };
+  }
+
+  componentDidMount() {
+    try {
+      const s = JSON.parse(localStorage.getItem("codevibe3d_save_v1") || "null");
+      if (s) this.setState({ xp: s.xp || 0, concluidos: s.concluidos || {}, streak: s.streak || 0 });
+    } catch (e) {}
+    import("./challenges.js").then((m) => { this.CH = m.CHALLENGES; this.setState({ carregado: true }); });
+  }
+
+  salvar() {
+    try {
+      const { xp, concluidos, streak } = this.state;
+      localStorage.setItem("codevibe3d_save_v1", JSON.stringify({ xp, concluidos, streak }));
+    } catch (e) {}
+  }
+
+  hexA(hex, a) {
+    const h = hex.replace("#", "");
+    const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
+    return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
+  }
+
+  lista() {
+    const t = this.state.trilha;
+    return (this.CH || []).filter((c) => c.categoria === t);
+  }
+
+  abrirTrilha(id) {
+    if (!this.CH) return;
+    this.setState({ trilha: id, tela: "jogo", idx: 0, sel: null, status: "idle", dicaAberta: false, errouAqui: false, primeiras: 0, xpSessao: 0 });
+  }
+
+  renderVals() {
+    const st = this.state;
+    const corNeon = this.props.corNeon ?? "#22d3ee";
+    const scanlinesOn = this.props.scanlines ?? true;
+    const codinome = (this.props.codinome ?? "Recruta").toString().toUpperCase();
+
+    const lista = st.tela === "hero" ? [] : this.lista();
+    const ch = lista[st.idx];
+    const track = this.tracks.find((t) => t.id === st.trilha) || this.tracks[0];
+
+    // ── trilhas (hero) ──
+    const trilhas = this.tracks.map((t) => {
+      const feitas = (this.CH || []).filter((c) => c.categoria === t.id && st.concluidos[c.id]).length;
+      const pct = Math.round((feitas / t.total) * 100);
+      return {
+        ...t,
+        corGlow: this.hexA(t.cor, 0.35),
+        corFundo: this.hexA(t.cor, 0.1),
+        feitas, pct, pctCss: pct + "%",
+        abrir: () => this.abrirTrilha(t.id),
+      };
+    });
+
+    // ── desafio atual ──
+    const difCores = { "Fácil": "#4ade80", "Médio": "#facc15", "Difícil": "#ff5470" };
+    const letras = ["A", "B", "C", "D"];
+    const opcoes = (ch ? ch.opcoes : []).map((texto, i) => {
+      const selecionada = st.sel === i;
+      const certa = st.status === "certo" && i === ch.resposta_correta;
+      const errada = st.status === "errado" && selecionada;
+      let borda = "1px solid rgba(139,148,255,.16)", fundo = "rgba(10,8,30,.55)", sombra = "none",
+          corLetra = "#8b93c8", corTexto = "#c4ceff", icone = "", corIcone = "#8b93c8";
+      if (selecionada) {
+        borda = "1px solid " + corNeon; fundo = this.hexA(corNeon, 0.07);
+        sombra = "0 0 18px " + this.hexA(corNeon, 0.22); corLetra = corNeon; corTexto = "#ffffff";
+        icone = "◄ selecionada"; corIcone = corNeon;
+      }
+      if (certa) {
+        borda = "1px solid #4ade80"; fundo = "rgba(74,222,128,.09)"; sombra = "0 0 20px rgba(74,222,128,.28)";
+        corLetra = "#4ade80"; corTexto = "#ffffff"; icone = "✓"; corIcone = "#4ade80";
+      }
+      if (errada) {
+        borda = "1px solid #ff5470"; fundo = "rgba(255,84,112,.08)"; sombra = "0 0 18px rgba(255,84,112,.22)";
+        corLetra = "#ff5470"; corTexto = "#ffb3c0"; icone = "✕"; corIcone = "#ff5470";
+      }
+      return {
+        texto, letra: letras[i], borda, fundo, sombra, corLetra, corTexto, icone, corIcone,
+        escolher: () => {
+          if (this.state.status === "certo") return;
+          this.setState({ sel: i, status: this.state.status === "errado" ? "idle" : this.state.status });
+        },
+      };
+    });
+
+    const segmentos = lista.map((c, i) => {
+      const feito = i < st.idx || (i === st.idx && st.status === "certo");
+      const atual = i === st.idx;
+      return {
+        bg: feito ? track.cor : atual ? this.hexA(track.cor, 0.35) : "rgba(139,148,255,.14)",
+        glow: feito ? "0 0 8px " + this.hexA(track.cor, 0.6) : "none",
+      };
+    });
+
+    const nivel = Math.floor(st.xp / 250) + 1;
+    const nivelPct = Math.round(((st.xp % 250) / 250) * 100);
+
+    return {
+      // tweaks
+      corNeon, scanlinesOn, codinome,
+      // telas
+      telaHero: st.tela === "hero",
+      telaJogo: st.tela === "jogo" && !!ch,
+      telaFim: st.tela === "fim",
+      // HUD
+      xpFmt: st.xp.toLocaleString("pt-BR"),
+      nivel, nivelPctCss: nivelPct + "%",
+      streak: st.streak,
+      streakCor: st.streak > 0 ? "#ff6a3d" : "#4a5080",
+      streakBorda: st.streak > 0 ? "rgba(255,106,61,.5)" : "rgba(139,148,255,.18)",
+      // hero
+      trilhas,
+      // desafio
+      trilhaNome: track.nome, trilhaGlifo: track.glifo, trilhaTag: track.tag,
+      trilhaCor: track.cor, trilhaCorFundo: this.hexA(track.cor, 0.1), trilhaCorGlow: this.hexA(track.cor, 0.5),
+      ext: track.ext,
+      numAtual: st.idx + 1, numTotal: lista.length || track.total,
+      numPad: String(st.idx + 1).padStart(2, "0"),
+      missao: ch ? ch.pergunta_imersiva : "",
+      dif: ch ? ch.dificuldade.toUpperCase() : "",
+      difCor: ch ? difCores[ch.dificuldade] : "#8b93c8",
+      difFundo: ch ? this.hexA(difCores[ch.dificuldade], 0.08) : "transparent",
+      xpDesafio: ch ? ch.xp : 0,
+      codigoLinhas: ch ? ch.codigo_base.split("\n").map((t, i) => ({ n: i + 1, t })) : [],
+      opcoes, segmentos,
+      dica: ch ? ch.dica : "",
+      dicaAberta: st.dicaAberta,
+      mostrarErro: st.status === "errado",
+      mostrarCerto: st.status === "certo",
+      msgErro: this.msgsErro[ch ? ch.id % this.msgsErro.length : 0],
+      msgCerto: this.msgsCerto[ch ? ch.id % this.msgsCerto.length : 0],
+      respostaCerta: ch ? ch.opcoes[ch.resposta_correta] : "",
+      ultimoGanho: st.ultimoGanho,
+      btnProximaTexto: st.idx + 1 >= lista.length ? "FINALIZAR TRILHA" : "PRÓXIMA MISSÃO",
+      execOpacidade: st.sel == null || st.status === "certo" ? "0.45" : "1",
+      // fim
+      xpSessao: st.xpSessao, primeiras: st.primeiras,
+      // handlers
+      voltarHub: () => this.setState({ tela: "hero", status: "idle", sel: null, dicaAberta: false }),
+      refazerTrilha: () => this.abrirTrilha(this.state.trilha),
+      abrirDica: () => this.setState({ dicaAberta: !this.state.dicaAberta }),
+      executar: () => {
+        const s = this.state;
+        if (s.sel == null || s.status === "certo") return;
+        const c = this.lista()[s.idx];
+        if (!c) return;
+        if (s.sel === c.resposta_correta) {
+          const primeira = !s.concluidos[c.id];
+          const ganho = primeira ? c.xp : 15;
+          this.setState({
+            status: "certo",
+            xp: s.xp + ganho,
+            xpSessao: s.xpSessao + ganho,
+            ultimoGanho: ganho,
+            streak: s.streak + 1,
+            concluidos: { ...s.concluidos, [c.id]: true },
+            primeiras: s.primeiras + (s.errouAqui ? 0 : 1),
+          }, () => this.salvar());
+        } else {
+          this.setState({ status: "errado", streak: 0, dicaAberta: true, errouAqui: true }, () => this.salvar());
+        }
+      },
+      proxima: () => {
+        const s = this.state;
+        const l = this.lista();
+        if (s.idx + 1 >= l.length) {
+          this.setState({ tela: "fim", status: "idle", sel: null, dicaAberta: false });
+        } else {
+          this.setState({ idx: s.idx + 1, sel: null, status: "idle", dicaAberta: false, errouAqui: false });
+        }
+      },
+      tiltMove: (e) => {
+        const el = e.currentTarget;
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = "perspective(900px) rotateX(" + (-y * 9).toFixed(2) + "deg) rotateY(" + (x * 11).toFixed(2) + "deg) translateY(-6px) scale(1.02)";
+      },
+      tiltLeave: (e) => {
+        e.currentTarget.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1)";
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>
